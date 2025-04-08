@@ -3,12 +3,7 @@
 name: Build and Test
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_call:
 
 env:
   # See supported Node.js release schedule at https://nodejs.org/en/about/releases
