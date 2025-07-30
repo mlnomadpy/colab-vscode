@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import dotenv from "dotenv";
 import * as chrome from "selenium-webdriver/chrome";
 import {
@@ -8,6 +9,7 @@ import {
   ModalDialog,
   WebDriver,
   Workbench,
+  VSBrowser,
   until,
 } from "vscode-extension-tester";
 
@@ -17,6 +19,7 @@ describe("Colab Extension", function () {
   dotenv.config();
 
   let driver: WebDriver;
+  let testTitle: string;
   let workbench: Workbench;
 
   before(async () => {
@@ -24,6 +27,10 @@ describe("Colab Extension", function () {
     workbench = new Workbench();
     driver = workbench.getDriver();
     await driver.sleep(4000);
+  });
+
+  beforeEach(function () {
+    testTitle = this.currentTest?.fullTitle() ?? "";
   });
 
   describe("with a notebook", () => {
@@ -57,8 +64,41 @@ describe("Colab Extension", function () {
       await dialog.pushButton("Copy");
       // TODO: Remove this dynamic import
       const clipboardy = await import("clipboardy");
-      const oauthUrl = clipboardy.default.readSync();
-      const oauthDriver = await getOAuthDriver();
+      await doOauthSignIn(/* oauthUrl= */ clipboardy.default.readSync());
+
+      // Now that we're authenticated, we can resume creating a Colab server via
+      // the open kernel selector.
+      inputBox = await InputBox.create();
+      await inputBox.selectQuickPick("New Colab Server");
+      // Select the variant.
+      inputBox = await InputBox.create();
+      await inputBox.selectQuickPick("CPU");
+      // Alias the server with the default name.
+      inputBox = await InputBox.create();
+      await inputBox.sendKeys(Key.ENTER);
+      // Select the kernel.
+      inputBox = await InputBox.create();
+      await inputBox.selectQuickPick("Python 3 (ipykernel)");
+
+      // Execute the notebook and poll for the success indicator (green check).
+      // Why not the cell output? Because the output is rendered in a webview.
+      await workbench.executeCommand("Notebook: Run All");
+      await driver.wait(async () => {
+        const element = await workbench
+          .getEnclosingElement()
+          .findElements(By.className("codicon-notebook-state-success"));
+        return element.length > 0;
+      }, ELEMENT_WAIT_MS);
+    });
+  });
+
+  /**
+   * Performs the OAuth sign-in flow for the Colab extension.
+   */
+  async function doOauthSignIn(oauthUrl: string): Promise<void> {
+    const oauthDriver = await getOAuthDriver();
+
+    try {
       await oauthDriver.get(oauthUrl);
 
       // Input the test account email address.
@@ -104,32 +144,20 @@ describe("Colab Extension", function () {
       // The test account should be authenticated. Close the browser window.
       await oauthDriver.wait(until.urlContains("127.0.0.1"), ELEMENT_WAIT_MS);
       await oauthDriver.quit();
-
-      // Now that we're authenticated, we can resume creating a Colab server via
-      // the open kernel selector.
-      inputBox = await InputBox.create();
-      await inputBox.selectQuickPick("New Colab Server");
-      // Select the variant.
-      inputBox = await InputBox.create();
-      await inputBox.selectQuickPick("CPU");
-      // Alias the server with the default name.
-      inputBox = await InputBox.create();
-      await inputBox.sendKeys(Key.ENTER);
-      // Select the kernel.
-      inputBox = await InputBox.create();
-      await inputBox.selectQuickPick("Python 3 (ipykernel)");
-
-      // Execute the notebook and poll for the success indicator (green check).
-      // Why not the cell output? Because the output is rendered in a webview.
-      await workbench.executeCommand("Notebook: Run All");
-      await driver.wait(async () => {
-        const element = await workbench
-          .getEnclosingElement()
-          .findElements(By.className("codicon-notebook-state-success"));
-        return element.length > 0;
-      }, ELEMENT_WAIT_MS);
-    });
-  });
+    } catch (_) {
+      // If the OAuth flow fails, ensure we grab a screenshot for debugging.
+      const screenshotsDir = VSBrowser.instance.getScreenshotsDir();
+      if (!fs.existsSync(screenshotsDir)) {
+        fs.mkdirSync(screenshotsDir, { recursive: true });
+      }
+      fs.writeFileSync(
+        `${screenshotsDir}/${testTitle} (oauth window).png`,
+        await oauthDriver.takeScreenshot(),
+        "base64",
+      );
+      throw _;
+    }
+  }
 });
 
 /**
