@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { assert } from "chai";
 import dotenv from "dotenv";
 import * as chrome from "selenium-webdriver/chrome";
 import {
@@ -12,6 +13,7 @@ import {
   VSBrowser,
   until,
 } from "vscode-extension-tester";
+import { CONFIG } from "../colab-config";
 
 const ELEMENT_WAIT_MS = 10000;
 
@@ -23,6 +25,11 @@ describe("Colab Extension", function () {
   let workbench: Workbench;
 
   before(async () => {
+    assert.equal(
+      CONFIG.Environment,
+      "production",
+      'Unexpected extension environment. Run `npm run generate:config` with COLAB_EXTENSION_ENVIRONMENT="production".',
+    );
     // Wait for the extension to be installed.
     workbench = new Workbench();
     driver = workbench.getDriver();
