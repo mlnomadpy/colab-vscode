@@ -29,12 +29,21 @@ import { getJupyterApi } from "./jupyter/jupyter-extension";
 import { ColabJupyterServerProvider } from "./jupyter/provider";
 import { ServerStorage } from "./jupyter/storage";
 import { ExtensionUriHandler } from "./system/uri";
+import { NotaEditorProvider } from "./webview/NotaEditorProvider";
 
 // Called when the extension is activated.
 export async function activate(context: vscode.ExtensionContext) {
   const logging = initializeLogger(vscode, context.extensionMode);
-  const jupyter = await getJupyterApi(vscode);
-  logEnvInfo(jupyter);
+  
+  // Try to get Jupyter API, but don't fail if not available
+  let jupyter: vscode.Extension<Jupyter> | undefined;
+  try {
+    jupyter = await getJupyterApi(vscode);
+    logEnvInfo(jupyter);
+  } catch (error) {
+    log.info("Jupyter extension not available, running in standalone mode");
+  }
+  
   const uriHandler = new ExtensionUriHandler(vscode);
   const uriHandlerRegistration = vscode.window.registerUriHandler(uriHandler);
   const authClient = new OAuth2Client(
@@ -67,14 +76,34 @@ export async function activate(context: vscode.ExtensionContext) {
     colabClient,
     serverStorage,
   );
-  const serverProvider = new ColabJupyterServerProvider(
-    vscode,
-    authProvider.whileAuthorized.bind(authProvider),
-    assignmentManager,
-    colabClient,
-    new ServerPicker(vscode, assignmentManager),
-    jupyter.exports,
+  
+  // Register Nota Editor Provider (TipTap-based)
+  const notaEditorProvider = new NotaEditorProvider(context, colabClient);
+  context.subscriptions.push(
+    vscode.window.registerCustomEditorProvider(
+      NotaEditorProvider.viewType,
+      notaEditorProvider,
+      {
+        webviewOptions: {
+          retainContextWhenHidden: true,
+        },
+      },
+    ),
   );
+  
+  // Only register Jupyter provider if Jupyter extension is available
+  let serverProvider: ColabJupyterServerProvider | undefined;
+  if (jupyter) {
+    serverProvider = new ColabJupyterServerProvider(
+      vscode,
+      authProvider.whileAuthorized.bind(authProvider),
+      assignmentManager,
+      colabClient,
+      new ServerPicker(vscode, assignmentManager),
+      jupyter.exports,
+    );
+  }
+  
   const connections = new ConnectionRefreshController(assignmentManager);
   const keepServersAlive = new ServerKeepAliveController(
     vscode,
@@ -92,20 +121,25 @@ export async function activate(context: vscode.ExtensionContext) {
     consumptionMonitor.toggle,
   );
 
-  context.subscriptions.push(
+  const subscriptions = [
     logging,
     uriHandler,
     uriHandlerRegistration,
     disposeAll(authFlows),
     authProvider,
     assignmentManager,
-    serverProvider,
     connections,
     keepServersAlive,
     ...consumptionMonitor.disposables,
     whileAuthorizedToggle,
-    ...registerCommands(assignmentManager),
-  );
+    ...registerCommands(assignmentManager, context),
+  ];
+  
+  if (serverProvider) {
+    subscriptions.push(serverProvider);
+  }
+  
+  context.subscriptions.push(...subscriptions);
 }
 
 function logEnvInfo(jupyter: vscode.Extension<Jupyter>) {
@@ -139,8 +173,17 @@ function watchConsumption(colab: ColabClient): {
   return { toggle: poller, disposables };
 }
 
-function registerCommands(assignmentManager: AssignmentManager): Disposable[] {
+function registerCommands(
+  assignmentManager: AssignmentManager,
+  _context: vscode.ExtensionContext,
+): Disposable[] {
   return [
+    // New Nota Document command
+    vscode.commands.registerCommand("colab.newNotaDocument", async () => {
+      const uri = vscode.Uri.file("Untitled.nota").with({ scheme: "untitled" });
+      const doc = await vscode.workspace.openTextDocument(uri);
+      await vscode.window.showTextDocument(doc);
+    }),
     // TODO: Register the rename server alias command once rename is reflected
     // in the recent kernels list. See https://github.com/microsoft/vscode-jupyter/issues/17107.
     vscode.commands.registerCommand(

@@ -13,6 +13,7 @@
     "allowJs": true,
     "outDir": "out",
     "lib": ["ES2022", "dom"],
+    "jsx": "react",
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,

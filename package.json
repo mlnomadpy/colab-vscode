@@ -19,9 +19,6 @@
   "engines": {
     "vscode": "^1.99.3"
   },
-  "extensionDependencies": [
-    "ms-toolsai.jupyter"
-  ],
   "categories": [
     "Notebooks"
   ],
@@ -36,8 +33,7 @@
     "r"
   ],
   "activationEvents": [
-    "onNotebook:jupyter-notebook",
-    "onNotebook:interactive"
+    "onCustomEditor:colab.notaEditor"
   ],
   "contributes": {
     "configuration": {
@@ -75,6 +71,11 @@
     "commands": [
       {
         "category": "Colab",
+        "command": "colab.newNotaDocument",
+        "title": "New Nota Document"
+      },
+      {
+        "category": "Colab",
         "command": "colab.removeServer",
         "enablement": "colab.hasAssignedServer",
         "title": "Remove Server"
@@ -95,6 +96,18 @@
         }
       }
     },
+    "customEditors": [
+      {
+        "viewType": "colab.notaEditor",
+        "displayName": "Nota Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.nota"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
     "menus": {
       "notebook/toolbar": [
         {
@@ -149,6 +162,8 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "@types/node-fetch": "^2.6.12",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "@types/semver": "^7.7.1",
     "@types/sinon": "^17.0.3",
     "@types/uuid": "^10.0.0",
@@ -181,9 +196,16 @@
     "vscode-extension-tester": "^8.14.1"
   },
   "dependencies": {
+    "@tiptap/core": "^2.27.1",
+    "@tiptap/extension-code-block-lowlight": "^2.27.1",
+    "@tiptap/react": "^2.27.1",
+    "@tiptap/starter-kit": "^2.27.1",
     "glob": "^11.0.0",
     "google-auth-library": "^9.15.0",
+    "lowlight": "^2.9.0",
     "node-fetch": "^2.6.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "semver": "^7.7.3",
     "uuid": "^11.0.3",
     "vscode-languageclient": "^10.0.0-next.17",
