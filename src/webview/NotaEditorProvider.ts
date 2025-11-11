@@ -7,6 +7,7 @@
 import vscode from "vscode";
 import { ColabClient } from "../colab/client";
 import { log } from "../common/logging";
+import { CodeExecutor } from "./CodeExecutor";
 
 /**
  * Provider for the Nota custom editor.
@@ -16,14 +17,14 @@ import { log } from "../common/logging";
 export class NotaEditorProvider implements vscode.CustomTextEditorProvider {
   public static readonly viewType = "colab.notaEditor";
   private readonly colabClient: ColabClient;
+  private readonly codeExecutor: CodeExecutor;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
     colabClient: ColabClient,
   ) {
     this.colabClient = colabClient;
-    // Will be used for code execution in the future
-    void this.colabClient;
+    this.codeExecutor = new CodeExecutor(this.colabClient);
   }
 
   /**
@@ -142,12 +143,15 @@ export class NotaEditorProvider implements vscode.CustomTextEditorProvider {
     try {
       log.info(`Executing ${language} code block`);
       
-      // TODO: Integrate with Colab kernel execution using this.colabClient
-      // For now, send a placeholder response
+      // Execute code using CodeExecutor
+      const result = await this.codeExecutor.execute(code, language);
+      
+      // Send result to webview
       panel.webview.postMessage({
         type: "executionResult",
-        output: `Execution not yet implemented. Code:\n${code}`,
-        success: false,
+        output: result.output,
+        success: result.success,
+        error: result.error,
       });
     } catch (error) {
       log.error("Code execution failed:", error);
