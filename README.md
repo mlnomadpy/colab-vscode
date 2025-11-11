@@ -55,10 +55,12 @@ cell](./docs/assets/hello-world.gif)
 
 Activate the command palette with `Ctrl+Shift+P` or `Cmd+Shift+P` on Mac.
 
-| Command                      | Description                                       |
-| ---------------------------- | ------------------------------------------------- |
-| `Colab: New Nota Document`   | Create a new `.nota` document with TipTap editor  |
-| `Colab: Remove server`       | Select an assigned Colab server to remove.        |
+| Command                              | Description                                       |
+| ------------------------------------ | ------------------------------------------------- |
+| `Colab: New Nota Document`           | Create a new `.nota` document with TipTap editor  |
+| `Colab: Export to Jupyter Notebook`  | Export current `.nota` file to `.ipynb` format    |
+| `Colab: Import from Jupyter Notebook`| Import `.ipynb` file and convert to `.nota`       |
+| `Colab: Remove server`               | Select an assigned Colab server to remove.        |
 
 ## File Formats
 
@@ -81,11 +83,27 @@ Example:
 ```
 
 ### `.ipynb` Files
-Standard Jupyter notebook format. Requires [Jupyter extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter).
+Standard Jupyter notebook format. Can be converted to/from .nota format using import/export commands.
+
+## Converting Between Formats
+
+### Export .nota to .ipynb
+1. Open a `.nota` file
+2. Run command: `Colab: Export to Jupyter Notebook`
+3. Choose save location
+4. File is saved as `.ipynb`
+
+### Import .ipynb to .nota
+1. Run command: `Colab: Import from Jupyter Notebook`
+2. Select `.ipynb` file to import
+3. Choose save location
+4. File opens in TipTap editor as `.nota`
 
 ## Documentation
 
 - [TipTap Transformation Guide](./docs/tiptap-transformation.md) - Technical details
+- [TDD Implementation](./docs/tdd-implementation.md) - Test-driven development process
+- [Phase 6: Export/Import](./docs/phase6-implementation.md) - Command implementation
 - [Webview Architecture](./src/webview/README.md) - Editor implementation
 - [Contributing Guide](./docs/contributing.md) - Development setup
 
