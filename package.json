@@ -76,6 +76,16 @@
       },
       {
         "category": "Colab",
+        "command": "colab.exportToJupyter",
+        "title": "Export to Jupyter Notebook"
+      },
+      {
+        "category": "Colab",
+        "command": "colab.importFromJupyter",
+        "title": "Import from Jupyter Notebook"
+      },
+      {
+        "category": "Colab",
         "command": "colab.removeServer",
         "enablement": "colab.hasAssignedServer",
         "title": "Remove Server"
