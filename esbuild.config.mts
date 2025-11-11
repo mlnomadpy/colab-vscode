@@ -82,6 +82,25 @@ const baseOptions: esbuild.BuildOptions = {
   color: true,
 };
 
+// Options specific to the webview build
+const webviewOptions: esbuild.BuildOptions = {
+  bundle: true,
+  sourcemap: true,
+  platform: "browser", // Browser environment for webview
+  format: "iife", // IIFE for browser
+  minify: isProduction,
+  treeShaking: true,
+  entryPoints: ["src/webview/nota-editor.tsx"],
+  outfile: "out/webview/nota-editor.js",
+  loader: {
+    ".tsx": "tsx",
+    ".ts": "ts",
+  },
+  plugins: [buildReporter("Webview")],
+  metafile: !isWatch,
+  color: true,
+};
+
 // Options specific to the main extension build
 const extensionOptions: esbuild.BuildOptions = {
   ...baseOptions,
@@ -156,6 +175,9 @@ async function main(): Promise<void> {
     ensureConfigExists();
     // Copy favicon for both main and test builds
     cpSync("src/auth/media/favicon.ico", "out/auth/media/favicon.ico");
+    // Copy webview CSS
+    mkdirSync("out/webview", { recursive: true });
+    cpSync("src/webview/nota-editor.css", "out/webview/nota-editor.css");
     if (isTestBuild) {
       cpSync("src/auth/media/favicon.ico", "out/test/media/favicon.ico");
     }
@@ -183,7 +205,7 @@ async function main(): Promise<void> {
             "src/test/e2e.mocharc.js",
           ]),
         ]
-      : [extensionOptions];
+      : [extensionOptions, webviewOptions];
 
     // Execute builds
     for (const opts of options) {
