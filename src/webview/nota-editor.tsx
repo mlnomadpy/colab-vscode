@@ -9,8 +9,16 @@ import { createRoot } from "react-dom/client";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import * as lowlight from "lowlight";
+import { lowlight } from "lowlight/lib/core";
+import javascript from "highlight.js/lib/languages/javascript";
+import python from "highlight.js/lib/languages/python";
+import typescript from "highlight.js/lib/languages/typescript";
 import { ExecutableCodeBlock } from "./ExecutableCodeBlock";
+
+// Register common languages
+lowlight.registerLanguage("javascript", javascript);
+lowlight.registerLanguage("python", python);
+lowlight.registerLanguage("typescript", typescript);
 
 // VS Code API type
 declare const acquireVsCodeApi: () => {
@@ -218,6 +226,22 @@ function MenuBar({
 // Initialize the React app
 const container = document.getElementById("root");
 if (container) {
-  const root = createRoot(container);
-  root.render(<NotaEditor />);
+  console.log('Root container found, initializing React...');
+  try {
+    const root = createRoot(container);
+    root.render(<NotaEditor />);
+    console.log('React app rendered successfully');
+  } catch (error) {
+    console.error('Failed to render React app:', error);
+    container.innerHTML = `<div style="padding: 20px; color: red;">
+      <h1>Error initializing editor</h1>
+      <pre>${error instanceof Error ? error.message : String(error)}</pre>
+    </div>`;
+  }
+} else {
+  console.error('Root container not found!');
+  document.body.innerHTML = `<div style="padding: 20px; color: red;">
+    <h1>Error: Root container not found</h1>
+    <p>The editor could not initialize because the root element is missing.</p>
+  </div>`;
 }

@@ -345,7 +345,7 @@ export class AssignmentManager implements vscode.Disposable {
   async setHasAssignedServerContext(signal?: AbortSignal): Promise<void> {
     await this.vs.commands.executeCommand(
       "setContext",
-      "colab.hasAssignedServer",
+      "bashnota.hasAssignedServer",
       await this.hasAssignedServer(signal),
     );
   }
@@ -465,7 +465,7 @@ export class AssignmentManager implements vscode.Disposable {
     );
     switch (selectedAction) {
       case AssignmentsExceededActions.REMOVE_SERVER:
-        this.vs.commands.executeCommand("colab.removeServer");
+        this.vs.commands.executeCommand("bashnota.removeServer");
         return;
       case AssignmentsExceededActions.REMOVE_SERVER_COLAB_WEB:
         this.vs.env.openExternal(

@@ -58,13 +58,13 @@ export function initializeLogger(
 
   level = getConfiguredLogLevel(vs);
   const configListener = vs.workspace.onDidChangeConfiguration((e) => {
-    if (e.affectsConfiguration("colab.logging")) {
+    if (e.affectsConfiguration("bashnota.logging")) {
       level = getConfiguredLogLevel(vs);
     }
   });
 
   // Create the output channel once.
-  const outputChannel = vs.window.createOutputChannel("Colab");
+  const outputChannel = vs.window.createOutputChannel("BashNota");
   loggers.push(new OutputChannelLogger(outputChannel));
 
   if (mode === vs.ExtensionMode.Development) {
@@ -142,7 +142,7 @@ const LOG_CONFIG_TO_LEVEL: Record<
 
 function getConfiguredLogLevel(vs: typeof vscode): LogLevel {
   const configLevel = vs.workspace
-    .getConfiguration("colab.logging")
+    .getConfiguration("bashnota.logging")
     .get<Lowercase<keyof typeof LogLevel>>("level", "info");
 
   return LOG_CONFIG_TO_LEVEL[configLevel];

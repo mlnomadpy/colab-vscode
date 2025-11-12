@@ -184,14 +184,14 @@ function registerCommands(
 
   return [
     // New Nota Document command
-    vscode.commands.registerCommand("colab.newNotaDocument", async () => {
+    vscode.commands.registerCommand("bashnota.newNotaDocument", async () => {
       const uri = vscode.Uri.file("Untitled.nota").with({ scheme: "untitled" });
       const doc = await vscode.workspace.openTextDocument(uri);
       await vscode.window.showTextDocument(doc);
     }),
     
     // Export to Jupyter Notebook command
-    vscode.commands.registerCommand("colab.exportToJupyter", async () => {
+    vscode.commands.registerCommand("bashnota.exportToJupyter", async () => {
       const activeEditor = vscode.window.activeTextEditor;
       if (!activeEditor || !activeEditor.document.uri.path.endsWith(".nota")) {
         vscode.window.showErrorMessage("Please open a .nota file to export");
@@ -230,7 +230,7 @@ function registerCommands(
     }),
 
     // Import from Jupyter Notebook command
-    vscode.commands.registerCommand("colab.importFromJupyter", async () => {
+    vscode.commands.registerCommand("bashnota.importFromJupyter", async () => {
       try {
         // Show open dialog
         const uris = await vscode.window.showOpenDialog({

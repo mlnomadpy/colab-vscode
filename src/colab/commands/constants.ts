@@ -20,8 +20,8 @@ export interface RegisteredCommand extends Command {
 
 /** Command to open the toolbar command selection. */
 export const COLAB_TOOLBAR: RegisteredCommand = {
-  id: "colab.toolbarCommand",
-  label: "Colab",
+  id: "bashnota.toolbarCommand",
+  label: "BashNota",
 };
 
 /** Command to trigger the sign-in flow, to view existing Colab servers. */
@@ -50,13 +50,13 @@ export const OPEN_COLAB_WEB: Command = {
 
 /** Command to remove a server. */
 export const REMOVE_SERVER: RegisteredCommand = {
-  id: "colab.removeServer",
+  id: "bashnota.removeServer",
   label: "Remove Server",
 };
 
 /** Command to rename a server alias. */
 export const RENAME_SERVER_ALIAS: RegisteredCommand = {
-  id: "colab.renameServerAlias",
+  id: "bashnota.renameServerAlias",
   label: "Rename Server Alias",
 };
 

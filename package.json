@@ -1,7 +1,7 @@
 {
-  "name": "colab",
+  "name": "bashnota",
   "publisher": "google",
-  "displayName": "Colab",
+  "displayName": "BashNota",
   "description": "Connect notebooks to Colab servers.",
   "icon": "icon.png",
   "version": "0.1.0",
@@ -23,8 +23,8 @@
     "Notebooks"
   ],
   "tags": [
-    "colab",
-    "google",
+    "bashnota",
+    "nota",
     "interactive",
     "julia",
     "jupyter",
@@ -33,13 +33,13 @@
     "r"
   ],
   "activationEvents": [
-    "onCustomEditor:colab.notaEditor"
+    "onCustomEditor:bashnota.notaEditor"
   ],
   "contributes": {
     "configuration": {
-      "title": "Colab",
+      "title": "BashNota",
       "properties": {
-        "colab.logging.level": {
+        "bashnota.logging.level": {
           "type": "string",
           "default": "info",
           "enum": [
@@ -58,7 +58,7 @@
             "Debug logs and higher (info, warning and error).",
             "Trace logs and higher (debug, info, warning and error) are logged."
           ],
-          "description": "Controls the verbosity of logs from the Colab extension. These can be found in the 'Colab' output channel."
+          "description": "Controls the verbosity of logs from the BashNota extension. These can be found in the 'BashNota' output channel."
         }
       }
     },
@@ -70,36 +70,36 @@
     ],
     "commands": [
       {
-        "category": "Colab",
-        "command": "colab.newNotaDocument",
+        "category": "BashNota",
+        "command": "bashnota.newNotaDocument",
         "title": "New Nota Document"
       },
       {
-        "category": "Colab",
-        "command": "colab.exportToJupyter",
+        "category": "BashNota",
+        "command": "bashnota.exportToJupyter",
         "title": "Export to Jupyter Notebook"
       },
       {
-        "category": "Colab",
-        "command": "colab.importFromJupyter",
+        "category": "BashNota",
+        "command": "bashnota.importFromJupyter",
         "title": "Import from Jupyter Notebook"
       },
       {
-        "category": "Colab",
-        "command": "colab.removeServer",
-        "enablement": "colab.hasAssignedServer",
+        "category": "BashNota",
+        "command": "bashnota.removeServer",
+        "enablement": "bashnota.hasAssignedServer",
         "title": "Remove Server"
       },
       {
-        "command": "colab.toolbarCommand",
-        "category": "Colab",
-        "title": "Colab",
-        "icon": "$(colab-logo)"
+        "command": "bashnota.toolbarCommand",
+        "category": "BashNota",
+        "title": "BashNota",
+        "icon": "$(bashnota-logo)"
       }
     ],
     "icons": {
-      "colab-logo": {
-        "description": "Google Colab logo",
+      "bashnota-logo": {
+        "description": "BashNota logo",
         "default": {
           "fontPath": "./resources/colab-font.woff",
           "fontCharacter": "\\e900"
@@ -108,7 +108,7 @@
     },
     "customEditors": [
       {
-        "viewType": "colab.notaEditor",
+        "viewType": "bashnota.notaEditor",
         "displayName": "Nota Editor",
         "selector": [
           {
@@ -121,13 +121,13 @@
     "menus": {
       "notebook/toolbar": [
         {
-          "command": "colab.toolbarCommand",
+          "command": "bashnota.toolbarCommand",
           "group": "navigation/control"
         }
       ],
       "commandPalette": [
         {
-          "command": "colab.toolbarCommand",
+          "command": "bashnota.toolbarCommand",
           "when": "false"
         }
       ]

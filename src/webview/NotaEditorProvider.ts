@@ -15,7 +15,7 @@ import { CodeExecutor } from "./CodeExecutor";
  * between the extension and the webview.
  */
 export class NotaEditorProvider implements vscode.CustomTextEditorProvider {
-  public static readonly viewType = "colab.notaEditor";
+  public static readonly viewType = "bashnota.notaEditor";
   private readonly colabClient: ColabClient;
   private readonly codeExecutor: CodeExecutor;
 
@@ -179,17 +179,27 @@ export class NotaEditorProvider implements vscode.CustomTextEditorProvider {
     // Use a nonce to whitelist which scripts can be run
     const nonce = getNonce();
 
+    log.info(`Loading webview with script: ${scriptUri.toString()}`);
+    log.info(`Loading webview with style: ${styleUri.toString()}`);
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https:;">
   <link href="${styleUri}" rel="stylesheet">
   <title>Nota Editor</title>
 </head>
 <body>
   <div id="root"></div>
+  <script nonce="${nonce}">
+    // Log errors to console
+    window.addEventListener('error', (e) => {
+      console.error('Webview error:', e.error);
+    });
+    console.log('Webview initializing...');
+  </script>
   <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;
